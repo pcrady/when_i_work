@@ -1,0 +1,10 @@
+A script to download csv files and reshape them into a new csv
+called ouput.csv. 
+
+to run:
+python script.py
+
+Note:
+You may need to install pandas. To do so:
+$sudo pip install pandas
+
