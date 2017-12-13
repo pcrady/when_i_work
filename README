@@ -1,5 +1,6 @@
 A script to download csv files and reshape them into a new csv
-called ouput.csv. 
+called ouput.csv. Its pretty slow because I'm not very good at
+database manipulation. 
 
 to run:
 python script.py
