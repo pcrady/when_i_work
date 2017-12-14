@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import urllib
 import string
 import multiprocessing
@@ -34,27 +35,21 @@ def concatinate_dataframes():
     df_list = [pd.read_csv(file_name) for file_name in file_names]
     return pd.concat(df_list)
 
-# Gets a list of unique elemnts from a column
-def get_unique_elements(df, column_name):
-    return df[column_name].unique()
+# This is like several hundred times faster. I knew there was a function
+# for this I just didnt know what it was called.
+def transform_dataframe(df):
+    df = df[['user_id', 'path','length']]
+    return df.pivot(index="user_id", columns="path", values="length").fillna(0)
 
-# Gets all rows from a given user id.
-def get_rows_by_user_id(df, user_id):
-    return df.loc[df['user_id'] == user_id]
+def delete_files():
+    for f in generate_file_names():
+        os.remove(f)
 
-# Creates rows on a per user id basis. This is not very efficent
-# and by far the slowest part of the whole thing. I'm not very 
-# good at database manipulation so the performance really suffers here.
-def create_row(user_df, path_list):
-    user_id = user_df['user_id'].iloc[0]
-    df = user_df[['path', 'length']].reset_index(drop=True)
-    df = df.transpose().reset_index(drop=True)
-    df = df.rename(index=str, columns=df.iloc[0])[1:].reset_index(drop=True)
-    df['user_id'] = user_id
-    for path in path_list:
-        if path not in df:
-            df[path] = 0
-    return df.reindex_axis(sorted(df.columns), axis=1)
+def main_wrapper():
+    df = concatinate_dataframes()
+    df = transform_dataframe(df)
+    df.to_csv("output.csv")
+    delete_files()
 
 # Main function with a really crappy commandline argument parser.
 def main():
@@ -63,17 +58,10 @@ def main():
     elif len(sys.argv) == 1:
         download_files(BASE_URL)
     else:
-        print "Invalid number of arguments"
         return
+ 
+    main_wrapper()
 
-    df = concatinate_dataframes()
-    path_list = get_unique_elements(df, 'path')
-    user_id_list = get_unique_elements(df, 'user_id')
-    user_dfs = [create_row(get_rows_by_user_id(df, i), path_list) for i in range(1, user_id_list.size)]
-    df = pd.concat(user_dfs).set_index('user_id')
-    df.to_csv("output.csv")
-    for f in generate_file_names():
-        os.remove(f)
 
 
 if __name__ == "__main__":
