@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import pandas as pd
 import numpy as np
 import urllib
@@ -18,9 +19,11 @@ def generate_file_names():
 
 # Downloads a single file given by the url
 def download_file(url):
-    downloaded_file = urllib.URLopener()
-    downloaded_file.retrieve(url, url.split('/')[-1])
-
+    with urllib.request.urlopen(url) as url_response:
+        downloaded_file = url_response.read().decode('utf-8')
+        with open(url.split('/')[-1], 'w') as f:
+            f.write(downloaded_file)
+            
 # Downloads multiple files in parallel. Must use multiprocessing here
 # because threading isnt really threading in python.
 # Note: would be more performant if wasnt writing the files to disk.
@@ -41,10 +44,12 @@ def transform_dataframe(df):
     df = df[['user_id', 'path','length']]
     return df.pivot(index="user_id", columns="path", values="length").fillna(0)
 
+# clean up downloaded files
 def delete_files():
     for f in generate_file_names():
         os.remove(f)
 
+# Helper function to make argprase easier
 def main_wrapper():
     df = concatinate_dataframes()
     df = transform_dataframe(df)
