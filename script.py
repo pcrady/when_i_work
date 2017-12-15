@@ -71,7 +71,6 @@ def get_args():
     return parser.parse_args()
 
 
-# Main function with a really crappy commandline argument parser.
 def main():
     """The main function."""
     args = get_args()
