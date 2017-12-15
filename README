@@ -3,7 +3,9 @@ called ouput.csv. Its pretty slow because I'm not very good at
 database manipulation. 
 
 to run:
-python script.py
+$python3 script.py
+or
+$./script.py
 
 Note:
 You may need to install pandas. To do so:
